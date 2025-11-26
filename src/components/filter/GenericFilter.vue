@@ -311,4 +311,41 @@ export default {
 .generic-filter.inline .filter-range {
   width: 320px;
 }
+
+/* 按钮样式 */
+.btn,
+.btn-secondary {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn {
+  background-color: #409eff;
+  color: white;
+}
+
+.btn:hover {
+  background-color: #66b1ff;
+}
+
+.btn:active {
+  background-color: #3a8ee6;
+}
+
+.btn-secondary {
+  background-color: #909399;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #a6a9ad;
+}
+
+.btn-secondary:active {
+  background-color: #82848a;
+}
 </style>
