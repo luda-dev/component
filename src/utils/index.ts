@@ -101,7 +101,7 @@ export function formatDate(date: Date | string | number, format: string = 'YYYY-
  * 生成唯一ID
  */
 export function generateId(prefix: string = 'id'): string {
-  return `${prefix}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+  return `${prefix}_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`
 }
 
 /**
