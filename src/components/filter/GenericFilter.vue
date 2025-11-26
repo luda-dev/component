@@ -313,8 +313,8 @@ export default {
 }
 
 /* 按钮样式 */
-.btn,
-.btn-secondary {
+.filter-actions .btn,
+.filter-actions .btn-secondary {
   padding: 8px 16px;
   border: none;
   border-radius: 4px;
@@ -323,29 +323,29 @@ export default {
   transition: all 0.2s;
 }
 
-.btn {
+.filter-actions .btn {
   background-color: #409eff;
   color: white;
 }
 
-.btn:hover {
+.filter-actions .btn:hover {
   background-color: #66b1ff;
 }
 
-.btn:active {
+.filter-actions .btn:active {
   background-color: #3a8ee6;
 }
 
-.btn-secondary {
+.filter-actions .btn-secondary {
   background-color: #909399;
   color: white;
 }
 
-.btn-secondary:hover {
+.filter-actions .btn-secondary:hover {
   background-color: #a6a9ad;
 }
 
-.btn-secondary:active {
+.filter-actions .btn-secondary:active {
   background-color: #82848a;
 }
 </style>
