@@ -1,0 +1,51 @@
+{
+  "name": "@luda-dev/component",
+  "version": "1.0.0",
+  "description": "低代码组件库 - Low-code component library with Vue3 + UnoCSS",
+  "type": "module",
+  "main": "./dist/component-library.umd.js",
+  "module": "./dist/component-library.es.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/component-library.es.js",
+      "require": "./dist/component-library.umd.js",
+      "types": "./dist/types/index.d.ts"
+    },
+    "./style.css": "./dist/style.css"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && tsc --emitDeclarationOnly",
+    "preview": "vite preview",
+    "type-check": "tsc --noEmit"
+  },
+  "keywords": [
+    "vue",
+    "vue3",
+    "component",
+    "low-code",
+    "unocss",
+    "vxe-table",
+    "component-library"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@vitejs/plugin-vue": "^5.2.4",
+    "unocss": "^0.58.9",
+    "vite": "^5.4.21",
+    "vue": "^3.5.25",
+    "vxe-table": "^4.17.20",
+    "xe-utils": "^3.7.9"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.25",
+    "typescript": "^5.9.3",
+    "vite-plugin-dts": "^3.9.1"
+  }
+}
