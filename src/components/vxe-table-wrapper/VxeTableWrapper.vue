@@ -65,7 +65,7 @@
       </vxe-column>
     </vxe-table>
     
-    <div v-if="showPager" class="table-pager">
+    <div v-if="showPager && total > 0" class="table-pager">
       <div class="pager-info">
         共 {{ total }} 条记录，每页 {{ pageSize }} 条
       </div>
@@ -80,7 +80,7 @@
         <span class="pager-current">第 {{ currentPage }} / {{ totalPages }} 页</span>
         <button 
           class="pager-btn" 
-          :disabled="currentPage === totalPages"
+          :disabled="currentPage === totalPages || totalPages === 0"
           @click="goToPage(currentPage + 1)"
         >
           下一页
@@ -156,6 +156,7 @@ const xTable = ref<VxeTableInstance>()
 const tableData = ref(props.data)
 
 const totalPages = computed(() => {
+  if (props.pageSize <= 0 || props.total <= 0) return 0
   return Math.ceil(props.total / props.pageSize)
 })
 
