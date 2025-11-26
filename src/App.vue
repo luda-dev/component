@@ -26,7 +26,25 @@
     </section>
 
     <section class="section">
-      <h2>4. 通用过滤器 (GenericFilter)</h2>
+      <h2>4. VXE Table 封装 (VxeTableWrapper)</h2>
+      <VxeTableWrapper
+        :columns="vxeColumns"
+        :data="vxeData"
+        show-checkbox
+        show-seq
+        show-pager
+        :total="vxeTotal"
+        @pageChange="handlePageChange"
+      >
+        <template #actions="{ row }">
+          <button class="action-btn" @click="handleVxeEdit(row)">编辑</button>
+          <button class="action-btn danger" @click="handleVxeDelete(row)">删除</button>
+        </template>
+      </VxeTableWrapper>
+    </section>
+
+    <section class="section">
+      <h2>5. 通用过滤器 (GenericFilter)</h2>
       <GenericFilter
         :config="filterConfig"
         @search="handleSearch"
@@ -38,8 +56,9 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { ModularLoader, DataTable, ViewTabs, GenericFilter } from './index'
+import { ModularLoader, DataTable, ViewTabs, VxeTableWrapper, GenericFilter } from './index'
 import type { ModuleConfig, DataTableConfig, TabItem, FilterConfig } from './types'
+import type { ColumnConfig } from './components/vxe-table-wrapper/VxeTableWrapper.vue'
 
 // 模块配置
 const moduleConfig = ref<ModuleConfig>({
@@ -79,6 +98,26 @@ const tabs = ref<TabItem[]>([
   { name: 'tab3', label: '高级选项', icon: '🔧', lazy: true },
 ])
 
+// VXE Table 配置
+const vxeColumns = ref<ColumnConfig[]>([
+  { field: 'id', title: 'ID', width: 80, sortable: true },
+  { field: 'name', title: '姓名', width: 120 },
+  { field: 'role', title: '角色', width: 120 },
+  { field: 'department', title: '部门', minWidth: 150 },
+  { field: 'email', title: '邮箱', minWidth: 200 },
+  { field: 'status', title: '状态', width: 100 },
+])
+
+const vxeData = ref([
+  { id: 1, name: '张三', role: '开发工程师', department: '技术部', email: 'zhangsan@example.com', status: '在职' },
+  { id: 2, name: '李四', role: '产品经理', department: '产品部', email: 'lisi@example.com', status: '在职' },
+  { id: 3, name: '王五', role: '设计师', department: '设计部', email: 'wangwu@example.com', status: '在职' },
+  { id: 4, name: '赵六', role: '测试工程师', department: '技术部', email: 'zhaoliu@example.com', status: '离职' },
+  { id: 5, name: '钱七', role: '运维工程师', department: '技术部', email: 'qianqi@example.com', status: '在职' },
+])
+
+const vxeTotal = ref(5)
+
 // 过滤器配置
 const filterConfig = ref<FilterConfig>({
   items: [
@@ -115,6 +154,18 @@ function handleSearch(values: any) {
 
 function handleReset() {
   console.log('重置过滤')
+}
+
+function handlePageChange(params: { currentPage: number; pageSize: number }) {
+  console.log('页码变化:', params)
+}
+
+function handleVxeEdit(row: any) {
+  console.log('编辑:', row)
+}
+
+function handleVxeDelete(row: any) {
+  console.log('删除:', row)
 }
 </script>
 
