@@ -80,7 +80,7 @@
         <span class="pager-current">第 {{ currentPage }} / {{ totalPages }} 页</span>
         <button 
           class="pager-btn" 
-          :disabled="currentPage === totalPages || totalPages === 0"
+          :disabled="currentPage === totalPages"
           @click="goToPage(currentPage + 1)"
         >
           下一页
@@ -185,7 +185,7 @@ function handleDelete(row: any) {
 }
 
 function goToPage(page: number) {
-  if (page < 1 || page > totalPages.value) return
+  if (page < 1 || totalPages.value === 0 || page > totalPages.value) return
   emit('pageChange', {
     currentPage: page,
     pageSize: props.pageSize
