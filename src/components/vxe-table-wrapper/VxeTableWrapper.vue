@@ -91,7 +91,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import type { VxeTableInstance, VxeTableProps } from 'vxe-table'
 
 export interface ColumnConfig {
@@ -154,6 +154,11 @@ const emit = defineEmits<{
 
 const xTable = ref<VxeTableInstance>()
 const tableData = ref(props.data)
+
+// Watch for data changes from parent
+watch(() => props.data, (newData) => {
+  tableData.value = newData
+}, { deep: true })
 
 const totalPages = computed(() => {
   if (props.pageSize <= 0 || props.total <= 0) return 0
