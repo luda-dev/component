@@ -391,6 +391,18 @@ import {
 } from '@luda-dev/component'
 ```
 
+## 构建系统说明
+
+本组件库采用现代化的构建方式：
+
+- **主入口**：提供打包后的 ES 和 UMD 格式文件
+- **模块化路径**：直接导出源文件（TypeScript/Vue），由消费者的构建工具处理
+  - 适用于 Vite、Webpack 5+ 等现代构建工具
+  - 支持更好的 Tree-shaking 和开发体验
+  - 需要构建工具支持 TypeScript 和 Vue 文件处理
+
+如果你的项目使用现代构建工具（Vite、Webpack 5+），推荐使用模块化路径引入以获得最佳性能。
+
 ## 开发
 
 ```bash
