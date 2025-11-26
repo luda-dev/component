@@ -96,19 +96,100 @@
           <button class="close-btn" @click="showColumnDialog = false">×</button>
         </div>
         <div class="dialog-body">
-          <div
-            v-for="column in allColumns"
-            :key="column.field"
-            class="column-item"
-          >
-            <label>
+          <div class="dialog-section">
+            <div class="section-header">
+              <h4>现有列</h4>
+              <button class="btn-add" @click="showAddFieldForm = true">+ 添加字段</button>
+            </div>
+            <div
+              v-for="column in allColumns"
+              :key="column.field"
+              class="column-item"
+            >
+              <label>
+                <input
+                  type="checkbox"
+                  :checked="column.visible !== false"
+                  @change="toggleColumnVisible(column.field)"
+                />
+                <span>{{ column.title }} ({{ column.field }})</span>
+              </label>
+              <button 
+                v-if="!column.required"
+                class="btn-remove" 
+                @click="confirmRemoveField(column.field)"
+                title="删除字段"
+              >
+                ×
+              </button>
+            </div>
+          </div>
+
+          <!-- 添加字段表单 -->
+          <div v-if="showAddFieldForm" class="add-field-form">
+            <h4>添加扩展字段</h4>
+            <div class="form-group">
+              <label>字段名 *</label>
               <input
-                type="checkbox"
-                :checked="column.visible !== false"
-                @change="toggleColumnVisible(column.field)"
+                v-model="newField.field"
+                type="text"
+                placeholder="例如: custom_field_1"
+                class="form-input"
               />
-              <span>{{ column.title }}</span>
-            </label>
+              <span v-if="fieldNameError" class="error-text">{{ fieldNameError }}</span>
+            </div>
+            <div class="form-group">
+              <label>列标题 *</label>
+              <input
+                v-model="newField.title"
+                type="text"
+                placeholder="例如: 自定义字段"
+                class="form-input"
+              />
+            </div>
+            <div class="form-group">
+              <label>字段类型</label>
+              <select v-model="newField.type" class="form-select">
+                <option value="text">文本</option>
+                <option value="number">数字</option>
+                <option value="date">日期</option>
+                <option value="select">下拉选择</option>
+                <option value="checkbox">复选框</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>列宽度 (px)</label>
+              <input
+                v-model.number="newField.width"
+                type="number"
+                placeholder="120"
+                class="form-input"
+              />
+            </div>
+            <div class="form-group">
+              <label>
+                <input type="checkbox" v-model="newField.editable" />
+                可编辑
+              </label>
+              <label>
+                <input type="checkbox" v-model="newField.sortable" />
+                可排序
+              </label>
+            </div>
+            <div v-if="newField.type === 'select'" class="form-group">
+              <label>选项配置 (JSON格式)</label>
+              <textarea
+                v-model="optionsJson"
+                placeholder='[{"label": "选项1", "value": "value1"}]'
+                class="form-textarea"
+                rows="3"
+              ></textarea>
+              <span v-if="optionsError" class="error-text">{{ optionsError }}</span>
+            </div>
+            <div class="form-actions">
+              <button class="btn" @click="handleAddField">确认添加</button>
+              <button class="btn-secondary" @click="cancelAddField">取消</button>
+            </div>
           </div>
         </div>
       </div>
@@ -140,9 +221,24 @@ const allColumns = ref<ExtendField[]>([...props.config.columns])
 const tableData = ref<any[]>(props.data || props.config.data || [])
 const loading = ref(props.config.loading || false)
 const showColumnDialog = ref(false)
+const showAddFieldForm = ref(false)
 const sortField = ref<string>('')
 const sortOrder = ref<'asc' | 'desc' | ''>('')
 const editingCell = ref<{ row: number; field: string } | null>(null)
+
+// 新字段表单
+const newField = ref<ExtendField>({
+  field: '',
+  title: '',
+  type: 'text',
+  width: 120,
+  editable: false,
+  sortable: false,
+  visible: true
+})
+const optionsJson = ref('')
+const fieldNameError = ref('')
+const optionsError = ref('')
 
 const stripe = computed(() => props.config.stripe ?? true)
 const border = computed(() => props.config.border ?? true)
@@ -242,6 +338,130 @@ function updateExtendField(field: string, updates: Partial<ExtendField>) {
   const column = allColumns.value.find(col => col.field === field)
   if (column) {
     Object.assign(column, updates)
+  }
+}
+
+// 验证字段名
+function validateFieldName(fieldName: string): boolean {
+  fieldNameError.value = ''
+  
+  if (!fieldName || fieldName.trim() === '') {
+    fieldNameError.value = '字段名不能为空'
+    return false
+  }
+  
+  if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(fieldName)) {
+    fieldNameError.value = '字段名只能包含字母、数字和下划线，且不能以数字开头'
+    return false
+  }
+  
+  if (allColumns.value.some(col => col.field === fieldName)) {
+    fieldNameError.value = '字段名已存在'
+    return false
+  }
+  
+  return true
+}
+
+// 验证选项配置
+function validateOptions(): boolean {
+  optionsError.value = ''
+  
+  if (newField.value.type !== 'select' || !optionsJson.value.trim()) {
+    return true
+  }
+  
+  try {
+    const options = JSON.parse(optionsJson.value)
+    if (!Array.isArray(options)) {
+      optionsError.value = '选项配置必须是数组格式'
+      return false
+    }
+    
+    for (const option of options) {
+      if (!option.label || option.value === undefined) {
+        optionsError.value = '每个选项必须包含 label 和 value 属性'
+        return false
+      }
+    }
+    
+    return true
+  } catch (e) {
+    optionsError.value = 'JSON 格式错误'
+    return false
+  }
+}
+
+// 处理添加字段
+function handleAddField() {
+  if (!validateFieldName(newField.value.field)) {
+    return
+  }
+  
+  if (!newField.value.title || newField.value.title.trim() === '') {
+    alert('请输入列标题')
+    return
+  }
+  
+  if (!validateOptions()) {
+    return
+  }
+  
+  // 构建字段对象
+  const fieldToAdd: ExtendField = {
+    field: newField.value.field.trim(),
+    title: newField.value.title.trim(),
+    type: newField.value.type,
+    width: newField.value.width || 120,
+    editable: newField.value.editable,
+    sortable: newField.value.sortable,
+    visible: true
+  }
+  
+  // 如果是 select 类型，添加选项
+  if (newField.value.type === 'select' && optionsJson.value.trim()) {
+    try {
+      fieldToAdd.options = JSON.parse(optionsJson.value)
+    } catch (e) {
+      // 已经在验证时处理过了
+    }
+  }
+  
+  addExtendField(fieldToAdd)
+  
+  // 为现有数据添加默认值
+  tableData.value.forEach(row => {
+    if (!(fieldToAdd.field in row)) {
+      row[fieldToAdd.field] = ''
+    }
+  })
+  
+  // 重置表单
+  cancelAddField()
+}
+
+// 取消添加字段
+function cancelAddField() {
+  showAddFieldForm.value = false
+  newField.value = {
+    field: '',
+    title: '',
+    type: 'text',
+    width: 120,
+    editable: false,
+    sortable: false,
+    visible: true
+  }
+  optionsJson.value = ''
+  fieldNameError.value = ''
+  optionsError.value = ''
+}
+
+// 确认删除字段
+function confirmRemoveField(field: string) {
+  const column = allColumns.value.find(col => col.field === field)
+  if (column && confirm(`确定要删除字段"${column.title}"吗？`)) {
+    removeExtendField(field)
   }
 }
 
@@ -474,5 +694,155 @@ export default {
   width: 16px;
   height: 16px;
   cursor: pointer;
+}
+
+.dialog-section {
+  margin-bottom: 20px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.section-header h4 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.btn-add {
+  background: #409eff;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: background 0.3s;
+}
+
+.btn-add:hover {
+  background: #66b1ff;
+}
+
+.btn-remove {
+  background: #f56c6c;
+  color: white;
+  border: none;
+  padding: 2px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-left: 8px;
+  transition: background 0.3s;
+}
+
+.btn-remove:hover {
+  background: #f78989;
+}
+
+.column-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* 添加字段表单 */
+.add-field-form {
+  border-top: 1px solid #e0e0e0;
+  padding-top: 16px;
+  margin-top: 16px;
+}
+
+.add-field-form h4 {
+  margin: 0 0 16px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: #606266;
+  font-weight: 500;
+}
+
+.form-group label input[type="checkbox"] {
+  margin-right: 6px;
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  border-color: #409eff;
+}
+
+.form-textarea {
+  resize: vertical;
+  font-family: monospace;
+}
+
+.error-text {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: #f56c6c;
+}
+
+.form-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.btn,
+.btn-secondary {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.3s;
+}
+
+.btn {
+  background: #409eff;
+  color: white;
+}
+
+.btn:hover {
+  background: #66b1ff;
+}
+
+.btn-secondary {
+  background: #f5f5f5;
+  color: #606266;
+}
+
+.btn-secondary:hover {
+  background: #e0e0e0;
 }
 </style>
