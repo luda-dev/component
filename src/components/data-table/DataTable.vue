@@ -399,7 +399,7 @@ function handleAddField() {
   }
   
   if (!newField.value.title || newField.value.title.trim() === '') {
-    alert('请输入列标题')
+    fieldNameError.value = '请输入列标题'
     return
   }
   
@@ -420,11 +420,7 @@ function handleAddField() {
   
   // 如果是 select 类型，添加选项
   if (newField.value.type === 'select' && optionsJson.value.trim()) {
-    try {
-      fieldToAdd.options = JSON.parse(optionsJson.value)
-    } catch (e) {
-      // 已经在验证时处理过了
-    }
+    fieldToAdd.options = JSON.parse(optionsJson.value)
   }
   
   addExtendField(fieldToAdd)
@@ -460,8 +456,12 @@ function cancelAddField() {
 // 确认删除字段
 function confirmRemoveField(field: string) {
   const column = allColumns.value.find(col => col.field === field)
-  if (column && confirm(`确定要删除字段"${column.title}"吗？`)) {
-    removeExtendField(field)
+  if (column) {
+    // 使用文本内容转义防止 XSS
+    const safeTitle = column.title.replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    if (confirm(`确定要删除字段"${safeTitle}"吗？`)) {
+      removeExtendField(field)
+    }
   }
 }
 
