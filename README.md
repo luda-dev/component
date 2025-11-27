@@ -4,11 +4,13 @@
 
 ## 特性
 
-- 🚀 **模块化加载** - 动态加载和管理组件模块
+- 🚀 **模块化加载** - 支持完整引入、按需引入和路径引入，优化打包体积
+- 📦 **Tree-shaking 支持** - 通过模块化路径引入实现更好的代码分割
 - 📊 **可扩展数据表** - 支持自定义字段和动态列配置
 - 📑 **视图标签页** - 灵活的标签页管理系统
 - 🔧 **VXE Table 集成** - 强大的表格功能封装
 - 🔍 **通用过滤器** - 可配置的多类型过滤组件
+- 🎨 **TypeScript 支持** - 完整的类型定义和智能提示
 
 ## 技术栈
 
@@ -39,10 +41,37 @@ app.use(ComponentLibrary)
 app.mount('#app')
 ```
 
-### 2. 按需引入
+### 2. 按需引入（推荐）
+
+**选项 A: 从主入口按需引入**
 
 ```typescript
 import { ModularLoader, DataTable, ViewTabs } from '@luda-dev/component'
+import { useDataTable, useFilter } from '@luda-dev/component'
+import { deepClone, formatDate } from '@luda-dev/component'
+```
+
+**选项 B: 模块化路径引入（更好的 Tree-shaking）**
+
+```typescript
+// 单个组件引入
+import { ModularLoader } from '@luda-dev/component/modular-loader'
+import { DataTable } from '@luda-dev/component/data-table'
+import { ViewTabs } from '@luda-dev/component/view-tabs'
+import { VxeTableWrapper } from '@luda-dev/component/vxe-table-wrapper'
+import { GenericFilter } from '@luda-dev/component/filter'
+
+// Composables 引入
+import { useModularLoader, useDataTable, useFilter } from '@luda-dev/component/composables'
+
+// 工具函数引入
+import { deepClone, debounce, formatDate } from '@luda-dev/component/utils'
+
+// 类型定义引入
+import type { ModuleConfig, DataTableConfig, FilterConfig } from '@luda-dev/component/types'
+
+// 样式引入
+import '@luda-dev/component/style.css'
 ```
 
 ## 组件说明
@@ -361,6 +390,18 @@ import {
   setValueByPath
 } from '@luda-dev/component'
 ```
+
+## 构建系统说明
+
+本组件库采用现代化的构建方式：
+
+- **主入口**：提供打包后的 ES 和 UMD 格式文件
+- **模块化路径**：直接导出源文件（TypeScript/Vue），由消费者的构建工具处理
+  - 适用于 Vite、Webpack 5+ 等现代构建工具
+  - 支持更好的 Tree-shaking 和开发体验
+  - 需要构建工具支持 TypeScript 和 Vue 文件处理
+
+如果你的项目使用现代构建工具（Vite、Webpack 5+），推荐使用模块化路径引入以获得最佳性能。
 
 ## 开发
 
