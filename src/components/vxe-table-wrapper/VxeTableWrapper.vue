@@ -65,20 +65,33 @@
       </vxe-column>
     </vxe-table>
     
-    <div v-if="showPager" class="table-pager">
-      <vxe-pager
-        v-bind="pagerProps"
-        :current-page="currentPage"
-        :page-size="pageSize"
-        :total="total"
-        @page-change="handlePageChange"
-      />
+    <div v-if="showPager && total > 0" class="table-pager">
+      <div class="pager-info">
+        共 {{ total }} 条记录，每页 {{ pageSize }} 条
+      </div>
+      <div class="pager-controls">
+        <button 
+          class="pager-btn" 
+          :disabled="currentPage === 1"
+          @click="goToPage(currentPage - 1)"
+        >
+          上一页
+        </button>
+        <span class="pager-current">第 {{ currentPage }} / {{ totalPages }} 页</span>
+        <button 
+          class="pager-btn" 
+          :disabled="currentPage === totalPages"
+          @click="goToPage(currentPage + 1)"
+        >
+          下一页
+        </button>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import type { VxeTableInstance, VxeTableProps } from 'vxe-table'
 
 export interface ColumnConfig {
@@ -142,6 +155,16 @@ const emit = defineEmits<{
 const xTable = ref<VxeTableInstance>()
 const tableData = ref(props.data)
 
+// Watch for data changes from parent
+watch(() => props.data, (newData) => {
+  tableData.value = newData
+}, { deep: true })
+
+const totalPages = computed(() => {
+  if (props.pageSize <= 0 || props.total <= 0) return 0
+  return Math.ceil(props.total / props.pageSize)
+})
+
 function handleCellClick(params: any) {
   emit('cellClick', params)
 }
@@ -166,10 +189,11 @@ function handleDelete(row: any) {
   emit('delete', row)
 }
 
-function handlePageChange(params: any) {
+function goToPage(page: number) {
+  if (page < 1 || totalPages.value === 0 || page > totalPages.value) return
   emit('pageChange', {
-    currentPage: params.currentPage,
-    pageSize: params.pageSize
+    currentPage: page,
+    pageSize: props.pageSize
   })
 }
 
@@ -220,9 +244,48 @@ export default {
 .table-pager {
   padding: 12px;
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
   border-top: 1px solid #e4e7ed;
   background: #fafafa;
+}
+
+.pager-info {
+  font-size: 14px;
+  color: #606266;
+}
+
+.pager-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pager-btn {
+  padding: 6px 16px;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  background: white;
+  color: #606266;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.pager-btn:hover:not(:disabled) {
+  color: #409eff;
+  border-color: #c6e2ff;
+  background: #ecf5ff;
+}
+
+.pager-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pager-current {
+  font-size: 14px;
+  color: #606266;
 }
 
 .action-btn {
