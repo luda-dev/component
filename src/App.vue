@@ -55,8 +55,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
 import { ModularLoader, DataTable, ViewTabs, VxeTableWrapper, GenericFilter } from './index'
+import { ref, defineComponent, h, markRaw } from 'vue'
 import type { ModuleConfig, DataTableConfig, TabItem, FilterConfig } from './types'
 import type { ColumnConfig } from './components/vxe-table-wrapper/VxeTableWrapper.vue'
 
@@ -91,11 +91,52 @@ const tableData = ref([
   { id: 3, name: '王五', age: 28, email: 'wangwu@example.com', status: 'inactive' },
 ])
 
+// 标签页内容组件
+const TabContent1 = defineComponent({
+  setup() {
+    return () => h('div', { style: 'padding: 20px;' }, [
+      h('h3', { style: 'margin-bottom: 12px; color: #303133;' }, '基本信息'),
+      h('p', { style: 'color: #606266; line-height: 1.6;' }, '这是基本信息标签页的内容。标签页组件支持动态内容、图标、关闭按钮等功能。'),
+      h('ul', { style: 'margin-top: 12px; padding-left: 20px;' }, [
+        h('li', { style: 'color: #606266; margin: 8px 0;' }, '支持图标显示'),
+        h('li', { style: 'color: #606266; margin: 8px 0;' }, '支持关闭功能'),
+        h('li', { style: 'color: #606266; margin: 8px 0;' }, '支持懒加载'),
+      ])
+    ])
+  }
+})
+
+const TabContent2 = defineComponent({
+  setup() {
+    return () => h('div', { style: 'padding: 20px;' }, [
+      h('h3', { style: 'margin-bottom: 12px; color: #303133;' }, '详细配置'),
+      h('p', { style: 'color: #606266; line-height: 1.6;' }, '这里可以放置更复杂的内容，如表单、表格等。'),
+      h('div', { style: 'margin-top: 16px; padding: 12px; background: #ecf5ff; border-left: 4px solid #409eff; border-radius: 4px;' }, [
+        h('strong', { style: 'color: #409eff;' }, '提示：'),
+        h('p', { style: 'margin-top: 8px; color: #606266;' }, '标签页内容可以是任意 Vue 组件')
+      ])
+    ])
+  }
+})
+
+const TabContent3 = defineComponent({
+  setup() {
+    return () => h('div', { style: 'padding: 20px;' }, [
+      h('h3', { style: 'margin-bottom: 12px; color: #303133;' }, '高级选项'),
+      h('p', { style: 'color: #606266; line-height: 1.6;' }, '这个标签页使用了懒加载，只有在第一次点击时才会加载内容。'),
+      h('div', { style: 'margin-top: 16px; padding: 12px; background: #f0f9ff; border: 1px solid #79bbff; border-radius: 4px;' }, [
+        h('p', { style: 'color: #409eff; font-weight: 600;' }, '🔧 懒加载优化'),
+        h('p', { style: 'margin-top: 8px; color: #606266; font-size: 14px;' }, '减少初始加载时间，提升性能')
+      ])
+    ])
+  }
+})
+
 // 标签页配置
 const tabs = ref<TabItem[]>([
-  { name: 'tab1', label: '基本信息', icon: '📄' },
-  { name: 'tab2', label: '详细配置', icon: '⚙️' },
-  { name: 'tab3', label: '高级选项', icon: '🔧', lazy: true },
+  { name: 'tab1', label: '基本信息', icon: '📄', component: markRaw(TabContent1) },
+  { name: 'tab2', label: '详细配置', icon: '⚙️', component: markRaw(TabContent2) },
+  { name: 'tab3', label: '高级选项', icon: '🔧', component: markRaw(TabContent3), lazy: true },
 ])
 
 // VXE Table 配置

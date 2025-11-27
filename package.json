@@ -12,6 +12,38 @@
       "require": "./dist/component-library.umd.js",
       "types": "./dist/types/index.d.ts"
     },
+    "./modular-loader": {
+      "import": "./src/components/modular-loader/index.ts",
+      "types": "./dist/types/components/modular-loader/index.d.ts"
+    },
+    "./data-table": {
+      "import": "./src/components/data-table/index.ts",
+      "types": "./dist/types/components/data-table/index.d.ts"
+    },
+    "./view-tabs": {
+      "import": "./src/components/view-tabs/index.ts",
+      "types": "./dist/types/components/view-tabs/index.d.ts"
+    },
+    "./vxe-table-wrapper": {
+      "import": "./src/components/vxe-table-wrapper/index.ts",
+      "types": "./dist/types/components/vxe-table-wrapper/index.d.ts"
+    },
+    "./filter": {
+      "import": "./src/components/filter/index.ts",
+      "types": "./dist/types/components/filter/index.d.ts"
+    },
+    "./composables": {
+      "import": "./src/composables/index.ts",
+      "types": "./dist/types/composables/index.d.ts"
+    },
+    "./utils": {
+      "import": "./src/utils/index.ts",
+      "types": "./dist/types/utils/index.d.ts"
+    },
+    "./types": {
+      "import": "./src/types/index.ts",
+      "types": "./dist/types/types/index.d.ts"
+    },
     "./style.css": "./dist/style.css"
   },
   "files": [
