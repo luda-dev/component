@@ -190,10 +190,49 @@ const tableConfig = {
   visible?: boolean      // 是否可见
   editable?: boolean     // 是否可编辑
   sortable?: boolean     // 是否可排序
+  required?: boolean     // 是否为必需字段（不可删除）
   options?: Array        // 选项（用于 select 类型）
   formatter?: Function   // 格式化函数
   validator?: Function   // 验证函数
 }
+```
+
+**通过 UI 添加扩展字段:**
+
+数据表组件提供了可视化界面来添加自定义字段：
+
+1. 点击"列配置"按钮打开配置对话框
+2. 点击"+ 添加字段"按钮
+3. 填写字段信息：
+   - 字段名：必须是有效的 JavaScript 标识符且唯一
+   - 列标题：显示在表头的文本
+   - 字段类型：选择合适的数据类型
+   - 列宽度：指定列的宽度（像素）
+   - 可编辑/可排序：勾选相应的选项
+   - 选项配置：对于 select 类型，提供 JSON 格式的选项数组
+4. 点击"确认添加"完成
+
+**通过代码添加扩展字段:**
+
+```typescript
+// 获取表格组件引用
+const tableRef = ref()
+
+// 添加新字段
+tableRef.value?.addExtendField({
+  field: 'custom_field',
+  title: '自定义字段',
+  type: 'text',
+  editable: true
+})
+
+// 更新字段
+tableRef.value?.updateExtendField('custom_field', {
+  visible: false
+})
+
+// 删除字段
+tableRef.value?.removeExtendField('custom_field')
 ```
 
 ### 3. ViewTabs (视图标签页)
