@@ -23,6 +23,7 @@ export interface ExtendField {
   visible?: boolean
   editable?: boolean
   sortable?: boolean
+  required?: boolean // 是否为必需字段（不可删除）
   options?: Array<{ label: string; value: any }>
   formatter?: (value: any, row: any) => string
   validator?: (value: any) => boolean | string
